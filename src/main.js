@@ -1,8 +1,17 @@
 import Vue from 'vue'
-import App from './App.vue'
+import App from './App'
+import 'lib-flexible/flexible'
 
-Vue.config.productionTip = false
+import router from './router'
+
 
 new Vue({
-  render: h => h(App),
-}).$mount('#app')
+
+  el:'#app',
+  components:{
+    App
+  },
+  template:'<App/>',
+  router
+
+})

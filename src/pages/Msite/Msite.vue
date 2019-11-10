@@ -1,11 +1,10 @@
 <template>
-    <div>
-      <router-view></router-view>
-    </div>
+  <div>
+      miste    
+  </div>
 </template>
 
 <script type="text/ecmascript-6">
-  
   export default {
   }
 </script>

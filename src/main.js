@@ -4,7 +4,9 @@ import 'lib-flexible/flexible'
 
 import router from './router'
 
+import GshopHeader from './components/GshopHeader/GshopHeader.vue'
 
+Vue.component('GshopHeader',GshopHeader)
 new Vue({
 
   el:'#app',

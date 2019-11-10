@@ -2,15 +2,16 @@
   <section class="msite">
         <!--首页头部-->
         <header class="msite_header">
-            <span class="header_search">
-              <i class="iconfont icon-sousuo1"></i>
-            </span>
-          <span class="header_title">
-              <span class="header_title_text ellipsis">昌平区北七家宏福科技园(337省道北)</span>
-            </span>
-          <span class="header_login">
-              <span class="header_login_text">登录|注册</span>
-            </span>
+          <GshopHeader title="昌平区北七家宏福科技园(337省道北)">
+              <span slot="left" class="header_search">
+                <i class="iconfont icon-sousuo1"></i>
+              </span>
+          
+             <span slot="right" class="header_login">
+               <span class="header_login_text">登录|注册</span>
+              </span>
+          </GshopHeader>
+            
         </header>
         <!--首页导航-->
         <nav class="msite_nav">
@@ -335,7 +336,7 @@
               transform translateY(-50%)
               width 10%
               height 50%
-              .icon-sousuo
+              .icon-sousuo1
                 font-size 25px
                 color #fff
             .header_title

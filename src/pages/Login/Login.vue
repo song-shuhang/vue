@@ -1,68 +1,273 @@
 <template>
-  
-    <section class="loginContainer">
-      <div class="loginInner">
-        <div class="login_header">
-          <h2 class="login_logo">硅谷外卖</h2>
-          <div class="login_header_title">
-            <a href="javascript:;" :class=" {on:!isPassWordLogin}" @click="isPassWordLogin = false">短信登录</a>
-            <a href="javascript:;" :class=" {on:isPassWordLogin}" @click="isPassWordLogin = true">密码登录</a>
-            <!-- 为啥后面就是赋值 就不行 -->
-          </div>
+ <div class="loginContainer">
+    <div class="loginInner">
+      <div class="login_header">
+        <h2 class="login_logo">硅谷外卖</h2>
+        <div class="login_header_title">
+          <a href="javascript:;" :class="{on:!isPassWordLogin}" @click="isPassWordLogin=false">短信登录</a>
+          <a href="javascript:;" :class="{on:isPassWordLogin}" @click="isPassWordLogin=true">密码登录</a>
+          <!-- 为啥后面就是赋值 就不行 -->
+            <!-- 那个后面是函数的形式，可以省略不写花括号，直接赋值
+            前面是判断的布尔值，是个对象 -->
         </div>
-        <div class="login_content">
-          <form>
-            <div :class=" {on:!isPassWordLogin}">
+      </div>
+      <div class="login_content">
+        <form>
+          <!-- 短信 验证码登录 -->
+          <div :class="{on:!isPassWordLogin}">
+            <section class="login_message">
+              <input
+                v-model="phone"
+                name="phone"
+                v-validate="'required|phone'" 
+                type="tel"
+                maxlength="11" 
+                placeholder="手机号">
+               <span style="color: red;" v-show="errors.has('phone')">{{errors.first('phone')}}</span>  
+               <!-- button 里的!!countDown 点击的时候是去哪方法里的值吗？-->
+              <button 
+                 @click.prevent="sendCode"
+                 :disabled="!isRightPhoneNumber || !!countDown"
+                 class="get_verification" 
+                 :class="isRightPhoneNumber?'right_phone_number':''"
+                 >{{countDown?`${countDown}s后可以再次获取`:'获取验证码'}}</button>
+            </section>
+            <section class="login_verification">
+              <input 
+                 v-model="code"
+                 name="code"
+                 v-validate="'required|code'" 
+                 type="tel" 
+                 maxlength="8"
+                 placeholder="验证码">
+              <span style="color: red;" v-show="errors.has('code')">{{errors.first('code')}}</span>  
+            </section>
+            <section class="login_hint">
+              温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
+              <a href="javascript:;">《用户服务协议》</a>
+            </section>
+          </div>
+          <!-- 用户名 密码 图片验证码登录 -->
+          <div :class="{on:isPassWordLogin}">
+            <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机号">
-                <button disabled="disabled" class="get_verification">获取验证码</button>
+                <input 
+                  v-model="name"
+                  v-validate="'required'"
+                  name="name"
+                  type="tel"
+                  maxlength="11" 
+                  placeholder="手机/邮箱/用户名">
+                  <!-- 有坑 接口文档中是name -->
+                <!-- 如果错误就显示底下的span  -->
+                <span style="color: red;" v-show="errors.has('name')">{{errors.first('name')}}</span>
               </section>
               <section class="login_verification">
-                <input type="tel" maxlength="8" placeholder="验证码">
+                <input
+                    v-model="pwd"
+                    v-validate="'required'"
+                    name="pwd"
+                    :type="isShowPassword?'tel':'password'" 
+                    maxlength="8"
+                    placeholder="密码">
+                <span style="color: red;" v-show="errors.has('pwd')">{{errors.first('pwd')}}</span>    
+                <div @click="isShowPassword=!isShowPassword" class="switch_button" :class="isShowPassword? 'on':'off'">
+                  <div class="switch_circle" :class="{right:isShowPassword}"></div>
+                  <span class="switch_text">{{isShowPassword?'abc':'...'}}</span>
+                </div>
               </section>
-              <section class="login_hint">
-                温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
-                <a href="javascript:;">《用户服务协议》</a>
+              <section class="login_message">
+                <input 
+                  v-model="captcha"
+                  v-validate="'required'"
+                  name="captcha"
+                  type="text"
+                  maxlength="11"
+                  placeholder="验证码">
+                 <span style="color: red;" v-show="errors.has('captcha')">{{errors.first('captcha')}}</span>  
+                <img ref="captcha" class="get_verification" @click="updateCaptcha" src="http://localhost:4000/captcha" alt="captcha">
               </section>
-            </div>
-            <div :class=" {on:isPassWordLogin}">
-              <section>
-                <section class="login_message">
-                  <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
-                </section>
-                <section class="login_verification">
-                  <input type="tel" maxlength="8" placeholder="密码">
-                  <div class="switch_button off">
-                    <div class="switch_circle"></div>
-                    <span class="switch_text">...</span>
-                  </div>
-                </section>
-                <section class="login_message">
-                  <input type="text" maxlength="11" placeholder="验证码">
-                  <img class="get_verification" src="../../common/images/captcha.svg" alt="captcha">
-                </section>
-              </section>
-            </div>
-            <button class="login_submit">登录</button>
-          </form>
-          <a href="javascript:;" class="about_us">关于我们</a>
-        </div>
-        <a href="javascript:" class="go_back">
-          <i class="iconfont icon-jiantouzuo"></i>
-        </a>
+            </section>
+          </div>
+          <button class="login_submit" @click.prevent="login">登录</button>
+        </form>
+        <a href="javascript:;" class="about_us">关于我们</a>
       </div>
-    </section>
- 
+      <span href="javascript:" class="go_back" @click.prevent="$router.back()">
+        <i class="iconfont icon-jiantou2"></i>
+      </span>
+    </div>
+  </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import {loginWithPassword, loginWithPhone} from '../../api'
   export default {
 
-    data(){
-      return{
-        isPassWordLogin:false //// 标识是否是用户名/密码登录
-      }
-    }
+      data(){
+        return{
+
+          isPassWordLogin:false,// 标识是否是用户名/密码登录
+          isShowPassword: false, // 是否显示密码
+          name: '',
+          pwd: '',//标签中的属性值
+          captcha: '',
+          phone: '',
+          code: '',
+          countDown: 0, // 倒计时
+        }
+      },
+      methods:{
+        updateCaptcha(){
+          this.$refs.captcha.src ='http://localhost:4000/captcha?time' + Date.now()
+        },
+        async login(){
+            let {isPassWordLogin,name,  pwd, captcha, phone, code} = this
+            let names = isPassWordLogin? ['name', 'pwd', 'captcha']: ['phone', 'code']
+            const success =await this.$validator.validateAll(names) 
+
+            if (success) {
+              alert('前端验证成功')
+              let result
+              if(isPassWordLogin){ // 用户名/密码登录
+                  result = await this.$API.loginWithPassword(name, pwd, captcha)
+                  console.log(result)
+                  if(result.code === 1){
+                    // 清空图形验证码
+                    this.captcha = ''
+                    // 更新图形验证码
+                    this.updateCaptcha()
+                  }
+                }else {// 手机号/验证码登录
+                  result = await this.$API.loginWithPhone(phone, code)
+                  if(result.code === 1){
+                    // 清空验证码
+                    this.code = ''
+                  }
+                }
+
+                // 登录成功的处理
+                if(result.code === 0){
+                  alert('登录成功')
+                  // 将获取的用户数据存入vuex的state中
+                  this.$store.dispatch('getUserAction', {user: result.data})
+                  this.$router.replace('/profile')
+                }
+
+
+
+            }else{
+               alert('前端验证失败')
+            }
+              
+        },
+        async sendCode(){
+            console.log('发送验证码');
+            let result = await this.$API.sendCode(this.phone)
+            if(result.code === 0){
+                alert('短信发送成功')
+            }else {
+              alert('短信发送失败')
+            }
+            // 设置倒计时的时长
+            this.countDown = 10
+            
+            this.intervalId = setInterval(() => {
+              this.countDown--
+              if (this.countDown === 0) {
+                clearInterval(this.intervalId)
+              }
+              // this.countDown === 0 && clearInterval(this.intervalId)
+            }, 1000)
+        }
+        
+      },
+      computed: {
+          isRightPhoneNumber(){
+           // 验证手机号是否满足要求
+             return /^1(3|4|5|6|7|8|9)\d{9}$/.test(this.phone)
+          }
+         
+        }
+
+  //   data(){
+  //     return{
+  //       isPassWordLogin:false, //// 标识是否是用户名/密码登录
+  //       isShowPassword:false,// 是否显示密码
+  //       name:'',
+  //       pwd:'',
+  //       captcha:'',
+  //       phine:'',
+  //       code:'',
+  //       countDown:0,// 倒计时
+  //     }
+  //   },
+  //   methods:{
+  //     updateCaptcha(){
+  //       this.$refs.captcha.src = 'http://localhost:4000/captcha?time=' + Date.now()
+  //     },
+  //     async login(){
+  //       let {isPassWordLogin, name,  pwd, captcha, phone, code} = this
+  //       let names = isPassWordLogin ? ['username','pwd','captcha'] :['phone','code']
+  //       const success = await this.$validator.validateAll(name)
+
+  //       if (success) {
+  //         alert('前端校验成功')
+  //           let result
+  //         if (isPassWordLogin) {// 用户名/密码登录
+          
+  //           result =await this.$API.loginWithPassword(name,  pwd, captcha)
+  //           if (result.code ===1) {
+  //             // 清空图形验证码
+  //             this.captcha =''
+  //             // 更新图形验证码
+  //             this.updateCaptcha() 
+  //           }
+
+  //         }else{//手机号 验证码登录
+            
+  //           result = await this.$API.loginWithPhone(phone, code)
+  //           if (result.code ===1) {
+  //             // 清空验证码
+  //             this.code =""
+              
+  //           }
+  //         }
+
+  //         if (result.code===0) {
+
+  //           alert('登录成功')
+  //           this.$router.replace('/profile')
+            
+  //         }
+
+
+  //       }else {
+  //         alert ('前端验证失败')
+  //       }
+        
+  //     },
+  //     sendCode(){
+
+  //       this.countDown = 10
+  //       this.intervalId = setInterval(()=>{
+
+  //           this.countDown--
+            
+  //           this.countDown === 0 && clearInterval(this.intervalId)
+
+
+  //       },1000)
+
+  //     },
+      
+  //   },
+  //    computed:{
+  //       isRightPhoneNumber(){
+  //          // 验证手机号是否满足要求
+  //         return /^1(3|4|5|6|7|8|9)\d{9}$/.test(this.phone)
+  //       }
+  //     }
   }
 
 </script>
@@ -128,6 +333,8 @@
                   color #ccc
                   font-size 14px
                   background transparent
+                  &.right_phone_number
+                    color red
               .login_verification
                 position relative
                 margin-top 16px
@@ -167,6 +374,8 @@
                     background #fff
                     box-shadow 0 2px 4px 0 rgba(0,0,0,.1)
                     transition transform .3s
+                    &.right
+                      transform translateX(27px)
               .login_hint
                 margin-top 12px
                 color #999

@@ -15,25 +15,26 @@
         </header>
         <!--首页导航-->
         <nav class="msite_nav">
-            <div class="swiper-container">
-              <div class="swiper-wrapper">
-                <div class="swiper-slide" v-for="(category, index) in newCateGorys" :key="index">
-                  <a href="javascript:" class="link_to_food" v-for="(categoryItem, index) in category" :key="index">
-                    <div class="food_container">
-                      <img :src="`https://fuss10.elemecdn.com${categoryItem.image_url}`">
-                    </div>
-                    <span>{{categoryItem.title}}</span>
-                  </a>
-                </div>
-
-              </div>
-              <!-- Add Pagination -->
-              <div class="swiper-pagination"></div>
+          <div class="swiper-container">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide" v-for="(category, index) in newCateGorys" :key="index">
+                <a href="javascript:" class="link_to_food" v-for="(categoryItem, index) in category" :key="index">
+                  <div class="food_container">
+                    <img :src="`https://fuss10.elemecdn.com${categoryItem.image_url}`">
+                  </div>
+                  <span>{{categoryItem.title}}</span>
+                </a>
+               
+              </div>            
             </div>
-         </nav>
+            <!-- Add Pagination -->
+            <div class="swiper-pagination"></div>
+          </div>
+        </nav>
+
         <!--首页附近商家-->
         <ShopList/>
-      </section>
+   </section>
 </template>
 
 <script type="text/ecmascript-6">
@@ -50,29 +51,37 @@
       // let result = await getAddress(40.10038,116.36867)
       // console.log(result);测试用的先试一下，vuex是否生效
       this.$store.dispatch('getAddressAction'),
-      this.$store.dispatch('getCategorysAction'),
+      this.$store.dispatch('getCategorysAction')
+
+      //  this.$store.dispatch('getCategorysAction', () => {
+      //   // console.log('数据已经更新到state中了');
+      //   // 方案二： 传递一个callback给action，在调用mutation之后调用callback
+      //   this.$nextTick(() => { //$nextTick代表下次页面全部渲染完毕
+      //     new Swiper('.swiper-container', {
+      //       loop: true,
+      //       pagination: {
+      //         el: '.swiper-pagination',
+      //       },
+      //     })
+      //   })
+      // }) 在actions 中插入一个函数       
       
-      new Swiper('.swiper-container', {
-        loop: true,
-        pagination: {
-          el: '.swiper-pagination',
-        },
-      })
+     
     },
-     methods: {
-      _chunk(target, size){
-        if(!Array.isArray(target) || size <=0 || !!!target.length){
-          return target
-        }
-        let arr = [...target]
-        let result = []
-        while (arr.length > size){
-          result.push(arr.splice(0, size))
-        }
-        result.push(arr)
-        return result
-      }
-    },
+    //  methods: {自定义了一个截取数组的方法
+    //   _chunk(target, size){
+    //     if(!Array.isArray(target) || size <=0 || !!!target.length){
+    //       return target
+    //     }
+    //     let arr = [...target]
+    //     let result = []
+    //     while (arr.length > size){
+    //       result.push(arr.splice(0, size))
+    //     }
+    //     result.push(arr)
+    //     return result
+    //   }
+    // },
     computed:{
       // ...mapState(['address']) 数组不能改名 
        ...mapState({
@@ -80,7 +89,7 @@
         categorys: state => state.categorys
       }),
       newCateGorys(){
-        return _.chunk(this.categorys, 8) // lodash
+        return  _.chunk(this.categorys, 8) // lodash
         // return this._chunk(this.categorys, 8) 自己封装额
       }
     },
@@ -101,8 +110,7 @@
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-
-  @import "../../common/stylus/mixins.styl"
+ @import "../../common/stylus/mixins.styl"
   .msite  //首页
     width 100%
 
@@ -141,7 +149,7 @@
                 text-align center
                 font-size 13px
                 color #666
-        .swiper-pagination
+        /deep/.swiper-pagination
           >span.swiper-pagination-bullet-active
             background #02a774
 </style>

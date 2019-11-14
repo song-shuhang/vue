@@ -1,8 +1,8 @@
 <template>
  <div id="goodContainer">
     <div class="leftContainer">
-      <ul class="navList">
-        <li class="navItem" :class="{active: navIndex === index}" v-for="(good, index) in goods" :key="index">
+      <ul ref="leftUl" class="navList">
+        <li class="navItem" @click="changeNavIndex(index)" :class="{active: navIndex === index}" v-for="(good, index) in goods" :key="index">
           <p>{{good.name}}</p>
         </li>      
       </ul>
@@ -48,10 +48,12 @@
         return{
             
             scrollY:0,
-            tops:[]
+            tops:[],
+            num:1,
+            test:{}
         }
     },
-    async mounted(){//渲染之前加载
+    mounted(){//渲染之前加载
         if (this.goods) {
           this._initScroll(),
           this._initTops()
@@ -62,19 +64,20 @@
     computed:{ // 计算值
       ...mapState({
         goods: state=>state.shop.shopDatas.goods,
-       
+       //大的state对象找模块的
       }), 
       navIndex(){
         let {tops, scrollY} = this
-        return tops.findIndex((top,index)=>scrollY>= top && scrollY<tops[index + 1])
+        return tops.findIndex((top,index)=>scrollY >= top && scrollY<tops[index + 1])
       }
 
     },
     methods:{ // 方法 函数
       _initScroll(){
 
-          new BScroll('.leftContainer', {
+          this.leftScrooll = new BScroll('.leftContainer', {
             scrollY: true, // 设置纵向滑动
+            click:true // 默认是不允许点的
           }),
             
           this.rightScroll =  new BScroll('.rightContainer', {
@@ -87,7 +90,7 @@
               this.scrollY = Math.abs(y)
           })
             //滑动的结束值
-          this.rightScroll.on('scrollend',({x,y})=>{
+          this.rightScroll.on('scrollEnd',({x,y})=>{
 
               this.scrollY = Math.abs(y)
           })
@@ -96,18 +99,24 @@
         let tops = []
         let top = 0 
         tops.push(top)
+        //判定为数组
+        //取到的是伪数组，只有下标和长度，想要遍历的转成真数组
         let lis  = Array.from(this.$refs.rightUl.children)
-        for (let i = 0; i < lis.length; i++) {
+        for (var i = 0; i < lis.length; i++) {
           
           top += lis[i].clientHeight
           tops.push(top)
         }
         this.tops =tops
+      },
+      changeNavIndex(index){
+        this.scrollY = this.tops[index]
+        this.rightScroll.scrollTo(0,-this.scrollY,200)
       }
     },
     watch:{
 
-      goods(newVaule,oldVaule){
+      goods(newValue,oldValue){//刷新页面以后 
         this.$nextTick(()=>{
 
           this._initScroll(),
@@ -138,6 +147,7 @@
           line-height 40px
           &.active
             background #fff
+            color green
           p
             width 70px
             margin 0 auto

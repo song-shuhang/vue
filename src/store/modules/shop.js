@@ -1,13 +1,13 @@
-import {
-    getShopDatas
-} from '../../api'
+import Vue from 'vue'
 
-import {SAVE_SHOPDATAS} from '../mutations-type'
+import  {getShopDatas} from '../../api'
+
+import {SAVE_SHOPDATAS,ADD_FOOD_COUNT, DEL_FOOD_COUNT} from '../mutations-type'
 
 
-// 模块化的vuex 的状态？？全在这里面
+// 模块化的vuex 的状态？？全在这里面, 对！
 const state = {
-    shopDatas:{},//
+    shopDatas:{},//// 初始化商家信息数据
 }
 
 const actions = {
@@ -23,7 +23,20 @@ const actions = {
 const mutations = {
     [SAVE_SHOPDATAS](state,{shopDatas}){
         state.shopDatas = shopDatas
-    }
+    },
+    [ADD_FOOD_COUNT](state,{food}){
+        if (food.count) {
+            food.count++
+        }else{
+           
+            Vue.set(food, 'count', 1)
+        }
+    },
+    [DEL_FOOD_COUNT](state,{food}){
+        if (food.count) {
+            food.count--
+        }
+    },
 
 }
 

@@ -27,7 +27,7 @@
                   <span class="now">￥{{food.price}}</span>
                 </div>
                 <div class="cartcontrol-wrapper">
-                  CartControl组件
+                 <CartControl :food="food"/>
                 </div>
               </div>
             </li>
@@ -83,7 +83,8 @@
             
           this.rightScroll =  new BScroll('.rightContainer', {
             scrollY: true, // 设置纵向滑动
-            probeType:2
+            probeType:3,
+            click:true
           })
             //滑动的初始值
           this.rightScroll.on('scroll',({x,y})=>{
@@ -112,7 +113,7 @@
       },
       changeNavIndex(index){
         this.scrollY = this.tops[index]
-        this.rightScroll.scrollTo(0,-this.scrollY,1000)
+        this.rightScroll.scrollTo(0,-this.scrollY,100)
       }
     },
     watch:{

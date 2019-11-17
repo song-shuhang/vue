@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 import  {getShopDatas} from '../../api'
 
-import {SAVE_SHOPDATAS,ADD_FOOD_COUNT, DEL_FOOD_COUNT} from '../mutations-type'
+import {SAVE_SHOPDATAS,ADD_FOOD_COUNT, DEL_FOOD_COUNT,CLEAR_CARTSHOPS, SAVE_CARTSHOPS} from '../mutations-type'
 
 
 // 模块化的vuex 的状态？？全在这里面, 对！
@@ -44,7 +44,14 @@ const mutations = {
                 state.cartShops.splice(state.cartShops.indexOf(food),1)            }
         }
     },
-
+    [SAVE_CARTSHOPS](state, {cartShops}){
+        state.cartShops = cartShops
+    },
+    [CLEAR_CARTSHOPS](state){
+        state.cartShops.forEach(food => food.count = 0)
+        state.cartShops = []
+        
+    }
 }
 
 const getters ={
